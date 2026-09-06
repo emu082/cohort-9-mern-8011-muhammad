@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 import { fetchNotes, deleteNote } from "../api/notesApi";
 
 function Dashboard() {
@@ -11,6 +12,25 @@ function Dashboard() {
   useEffect(() => {
     load();
   }, [search]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const socket = io(import.meta.env.VITE_SOCKET_URL, { auth: { token } });
+
+    socket.on("note:created", (note) => {
+      setNotes((prev) => [note, ...prev]);
+    });
+    socket.on("note:updated", (note) => {
+      setNotes((prev) => prev.map((n) => (n.id === note.id ? note : n)));
+    });
+    socket.on("note:deleted", ({ id }) => {
+      setNotes((prev) => prev.filter((n) => n.id !== id));
+    });
+
+    return () => socket.disconnect();
+  }, []);
 
   async function load() {
     setLoading(true);
