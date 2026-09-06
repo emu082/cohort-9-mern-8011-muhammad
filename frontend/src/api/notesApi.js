@@ -10,3 +10,7 @@ export const createNote = (data) => axiosClient.post("/notes", data).then((r) =>
 export const updateNote = (id, data) => axiosClient.put(`/notes/${id}`, data).then((r) => r.data.note);
 
 export const deleteNote = (id) => axiosClient.delete(`/notes/${id}`);
+
+export const exportNotes = () => axiosClient.get("/notes/export");
+
+export const importNotes = (notes) => axiosClient.post("/notes/import", { notes });

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
-import { fetchNotes, deleteNote } from "../api/notesApi";
+import { fetchNotes, deleteNote, exportNotes, importNotes } from "../api/notesApi";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -46,6 +46,27 @@ function Dashboard() {
     setNotes(notes.filter((n) => n.id !== id));
   }
 
+  async function handleExport() {
+    const res = await exportNotes();
+    const blob = new Blob([JSON.stringify(res.data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "notes-export.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function handleImportFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    await importNotes(parsed);
+    load();
+    e.target.value = "";
+  }
+
   return (
     <div className="container">
       <div className="toolbar">
@@ -56,6 +77,11 @@ function Dashboard() {
           onChange={(e) => setSearch(e.target.value)}
         />
         <button className="btn btn-primary" onClick={() => navigate("/notes/new")}>+ New Note</button>
+        <button className="btn btn-secondary" onClick={handleExport}>Export</button>
+        <label className="btn btn-secondary" style={{ marginBottom: 0 }}>
+          Import
+          <input type="file" accept="application/json" onChange={handleImportFile} hidden />
+        </label>
       </div>
 
       {loading && <p>Loading...</p>}
