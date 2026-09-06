@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import TopNav from "./components/TopNav";
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
+import Dashboard from "./components/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
@@ -9,9 +10,10 @@ function App() {
     <>
       <TopNav />
       <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/" element={<Navigate to="/dashboard" />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
       </Routes>
     </>
   );
