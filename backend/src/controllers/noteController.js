@@ -34,4 +34,24 @@ const remove = catchAsync(async (req, res) => {
   res.status(204).send();
 });
 
-module.exports = { list, getOne, create, update, remove };
+const exportNotes = catchAsync(async (req, res) => {
+  const notes = await noteService.listNotes(req.user.id);
+  res.setHeader("Content-Disposition", "attachment; filename=notes-export.json");
+  res.json(notes);
+});
+
+
+const importNotes = catchAsync(async (req, res) => {
+  const { notes } = req.body;
+  if (!Array.isArray(notes)) {
+    return res.status(400).json({ success: false, message: "Expected an array of notes." });
+  }
+  const created = [];
+  for (const n of notes) {
+    if (n && n.title) {
+      created.push(await noteService.createNote(req.user.id, n));
+    }
+  }
+  res.status(201).json({ success: true, imported: created.length });
+});
+module.exports = { list, getOne, create, update, remove, exportNotes, importNotes };

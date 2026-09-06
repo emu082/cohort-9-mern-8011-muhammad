@@ -6,6 +6,9 @@ const router = express.Router();
 
 router.use(authenticate);
 
+router.get("/export", noteController.exportNotes);
+router.post("/import", noteController.importNotes);
+
 router.get("/", noteController.list);
 router.post("/", noteController.create);
 router.get("/:id", noteController.getOne);
